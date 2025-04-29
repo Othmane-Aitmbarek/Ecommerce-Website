@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Shop</title>
+    <link
+      rel="shortcut icon"
+      type="x-icon"
+      href="icon-removebg-preview.png"
+    />
+    <link
+      rel="stylesheet"
+      href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css"
+    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Spartan:wght@100;200;300;400;500;600;700;800;900&display=swap");
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Spartan", sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: #E0E1DD;
+        }
+
+        /* Header Styles */
+        .header {
+            background-color: #0D1B2A;
+            color: #E0E1DD;
+            padding: 20px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: #E0E1DD;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: #E0E1DD;
+            text-decoration: none;
+            font-size: 16px;
+            transition: color 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            color: #778DA9;
+        }
+
+        /* Sections Styles */
+        section {
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        /* Home Section */
+        #home {
+            padding-top: 100px;
+            background: linear-gradient(rgba(65, 90, 119,1), rgba(27, 38, 59));
+            background-image: url(b14.png);
+            background-repeat: repeat;
+            background-position: 20% 30%;
+            background-color: #041e42;
+            background-size: cover;
+        }
+
+        .slider {
+            max-width: 1000px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+            height: 400px;
+        }
+
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slide.active {
+            opacity: 1;
+        }
+
+        /* Shop Section */
+        #shop {
+            background: linear-gradient(rgb(4, 30, 66), rgba(27, 38, 59));
+            /* background-color: #1B263B; */
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+
+        /* Product Card Styles */
+        .product-card {
+            background: whitesmoke;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .product-name {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .product-category {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .product-price {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1a1a1a;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+
+        .available {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .sold-out {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .in-review {
+            background-color: #fff3e0;
+            color: #ef6c00;
+        }
+
+        .preorder {
+            background-color: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .product-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+
+        .overlay-content {
+            position: relative;
+            background-color: white;
+            width: 90%;
+            height: 85%;
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .close-overlay {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 30px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #1a1a1a;
+        }
+
+        .product-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-top: 20px;
+        }
+
+        .product-image-large {
+            width: 100%;
+            aspect-ratio: 1;
+            overflow: hidden;
+            border-radius: 10px;
+        }
+
+        .product-image-large img {
+            width: 100%;
+            height: 80%;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .product-info {
+            padding: 20px 0;
+        }
+
+        .product-info h2 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            color: #1a1a1a;
+        }
+
+        .product-info .price {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+        }
+
+        .product-info .category {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .product-info .description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        /* Contact Section */
+
+        #contact-details {
+            background: linear-gradient(rgba(27, 38, 59,1), rgba(65, 90, 119,0.9));
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #E0E1DD;
+        }
+
+        #contact-details .details {
+            width: 40%;
+        }
+
+        #contact-details .details span {
+            font-size: 12px;
+        }
+
+        #contact-details .details h2 {
+            font-size: 26px;
+            line-height: 35px;
+            padding: 20px 0;
+        }
+
+        #contact-details .details h3 {
+            font-size: 16px;
+            padding-bottom: 15px;
+        }
+
+        #contact-details .details li {
+            list-style: none;
+            display: flex;
+            padding: 10px 0;
+        }
+
+        #contact-details .details li i {
+        font-size: 15px;
+        padding-right: 22px;
+        }
+        #contact-details .details li p {
+        font-size: 14px;
+        margin: 0;
+        }
+
+        #contact-details .map {
+        width: 55%;
+        height: 400px;
+        }
+        #contact-details .map iframe {
+        width: 100%;
+        height: 100%;
+        }
+
+        .add-to-cart-btn {
+            background-color: #0D1B2A;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .add-to-cart-btn:hover {
+            background-color: #1B263B;
+        }
+
+        @media (max-width: 768px) {
+            .product-details {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @keyframes cartPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+
+        .cart-notification {
+            animation: cartPulse 0.5s ease;
+        }
+
+        .cart-icon {
+            position: relative;
+            text-decoration: none;
+        }
+
+        #cart-counter {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: red;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 12px;
+            min-width: 15px;
+            text-align: center;
+        }
+
+        .add-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 3000;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="productOverlay" class="product-overlay">
+        <div class="overlay-content">
+            <button class="close-overlay" onclick="closeProductOverlay()">&times;</button>
+            <div class="product-details">
+                <div class="product-image-large">
+                    <!-- Product image will be inserted here -->
+                </div>
+                <div class="product-info">
+                    <!-- Product information will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo">
+                <a href="index.html" class="logo">
+                    E-SHOP
+                </a>
+            </div>
+            <nav class="nav-links">
+                <a href="#home">Home</a>
+                <a href="#shop">Shop</a>
+                <a href="#contact-details">Contact</a>
+                <a href="compte.html">Account</a>
+                <a href="cart.html" class="cart-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="cart-counter">0</span>
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Home Section -->
+    <section id="home">
+        <div class="slider">
+            <!-- Slides will be added dynamically -->
+        </div>
+    </section>
+
+    <!-- Shop Section -->
+    <section id="shop">
+        <h1 style="font-size: 30px; color: #E0E1DD; text-align: center;">Featured Products</h1>
+        <div class="products-grid" id="productsGrid" style="margin-top: 30px;">
+            <!-- Products will be dynamically inserted here -->
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact-details" class="section-p1">
+        <div class="details">
+          <span>Get In Touch</span>
+          <h2>Visit one of our agency locations or contact us today</h2>
+          <h3>Head Office</h3>
+          <div>
+                <li>
+                    <i class="fal fa-map"></i>
+                    <p>Casablanca Nearshore, Boulevard Al Qods, Casablanca, Morocco</p>
+                </li>
+                <li>
+                    <i class="fal fa-envelope"></i>
+                    <p>contact@example.com</p>
+                </li>
+                <li>
+                    <i class="fal fa-phone-alt"></i>
+                    <p>+212 5984 458 43</p>
+                </li>
+                <li>
+                    <i class="fal fa-clock"></i>
+                    <p>Monday to Saturday : 9:00AM to 5:00PM</p>
+                </li>
+          </div>
+        </div>
+        <div class="map">
+            <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d6651.819247560084!2d-7.644236507249099!3d33.52973530208224!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xda62d5e27dcad67%3A0x222da975b7097667!2sPorte%20nord%20-%20Casanearshore!5e0!3m2!1sen!2sma!4v1714245328345!5m2!1sen!2sma"
+                width="600"
+                height="450"
+                style="border: 0"
+                allowfullscreen=""
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+            ></iframe>
+        </div>
+      </section>
+
+    <div id="addNotification" class="add-notification">
+        Produit ajouté ✅
+    </div>
+
+    <script>
+        // Your existing displayProducts function
+        function displayProducts() {
+            const products = JSON.parse(localStorage.getItem('tableProducts')) || [];
+            const productsGrid = document.getElementById('productsGrid');
+            
+            // Filter products to show only available and preorder items
+            const filteredProducts = products.filter(product => 
+                product.status.toLowerCase() === 'available' || 
+                product.status.toLowerCase() === 'preorder'
+            );
+            
+            productsGrid.innerHTML = filteredProducts.map(product => `
+                <div class="product-card" onclick="showProductOverlay(${JSON.stringify(product).replace(/"/g, '&quot;')})">
+                    <img src="${product.image || 'https://via.placeholder.com/200'}" 
+                         alt="${product.name}" 
+                         class="product-image">
+                    <h3 class="product-name">${product.name}</h3>
+                    <div class="product-category">${product.category}</div>
+                    <div class="product-price">$${parseFloat(product.price).toFixed(2)}</div>
+                    <div class="status-badge ${product.status.toLowerCase()}">
+                        ${product.status.charAt(0).toUpperCase() + product.status.slice(1).replace('-', ' ')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Function to initialize home slider
+        function initializeSlider() {
+            const products = JSON.parse(localStorage.getItem('tableProducts')) || [];
+            const featuredProducts = products.filter(product => 
+                product.status.toLowerCase() === 'available'
+            ).slice(0, 5);
+
+            const slider = document.querySelector('.slider');
+            slider.innerHTML = featuredProducts.map((product, index) => `
+                <div class="slide ${index === 0 ? 'active' : ''}">
+                    <img src="${product.image || 'https://via.placeholder.com/800x400'}" 
+                         alt="${product.name}">
+                </div>
+            `).join('');
+
+            // Implement slider functionality
+            let currentSlide = 0;
+            const slides = document.querySelectorAll('.slide');
+
+            setInterval(() => {
+                slides[currentSlide].classList.remove('active');
+                currentSlide = (currentSlide + 1) % slides.length;
+                slides[currentSlide].classList.add('active');
+            }, 3000);
+        }
+
+        // Function to add product to cart
+        function addToCart(productId) {
+            // Get current cart items
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            
+            // Get all products
+            const products = JSON.parse(localStorage.getItem('tableProducts')) || [];
+            
+            // Find the product to add
+            const productToAdd = products.find(p => p.id === productId);
+            
+            if (productToAdd) {
+                // Add product to cart
+                cart.push(productToAdd);
+                
+                // Save updated cart
+                localStorage.setItem('cart', JSON.stringify(cart));
+                
+                // Update counter
+                const counter = document.getElementById('cart-counter');
+                counter.textContent = cart.length;
+                counter.style.display = 'block';
+                
+                // Add animation to cart icon
+                const cartIcon = document.querySelector('.cart-icon');
+                cartIcon.classList.add('cart-notification');
+                
+                // Remove animation class after it completes
+                setTimeout(() => {
+                    cartIcon.classList.remove('cart-notification');
+                }, 500);
+
+                // Show "Produit ajouté" notification
+                showAddNotification();
+            } else {
+                alert('Error: Product not found!');
+            }
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            displayProducts();
+            initializeSlider();
+        });
+
+        // Update when localStorage changes
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'tableProducts') {
+                displayProducts();
+                initializeSlider();
+            }
+        });
+
+        // Add these functions to your existing script
+        function showProductOverlay(product) {
+            const overlay = document.getElementById('productOverlay');
+            overlay.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+
+            // Check if product can be added to cart
+            const canAddToCart = product.status.toLowerCase() === 'available' || 
+                                product.status.toLowerCase() === 'preorder';
+
+            overlay.querySelector('.overlay-content').innerHTML = `
+                <button class="close-overlay" onclick="closeProductOverlay()">&times;</button>
+                <div class="product-details">
+                    <div class="product-image-large">
+                        <img src="${product.image || 'https://via.placeholder.com/500'}" 
+                             alt="${product.name}">
+                    </div>
+                    <div class="product-info">
+                        <h2>${product.name}</h2>
+                        <div class="price">$${parseFloat(product.price).toFixed(2)}</div>
+                        <div class="category">${product.category}</div>
+                        <p class="description">
+                            Experience the quality and innovation of ${product.name}. 
+                            This premium product from our ${product.category} collection 
+                            offers exceptional value and performance.
+                        </p>
+                        <div class="status-badge ${product.status.toLowerCase()}">
+                            ${product.status.charAt(0).toUpperCase() + product.status.slice(1).replace('-', ' ')}
+                        </div>
+                        <button onclick="${canAddToCart ? `addToCart('${product.id}')` : 'showStatusAlert()'}" 
+                                class="add-to-cart-btn"
+                                ${!canAddToCart ? 'style="opacity: 0.6; cursor: not-allowed;"' : ''}>
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function closeProductOverlay() {
+            const overlay = document.getElementById('productOverlay');
+            overlay.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close overlay when clicking outside the content
+        document.getElementById('productOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeProductOverlay();
+            }
+        });
+
+        // Make sure this function runs when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize cart counter
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const counter = document.getElementById('cart-counter');
+            counter.textContent = cart.length;
+            counter.style.display = cart.length > 0 ? 'block' : 'none';
+        });
+
+        function showAddNotification() {
+            const notification = document.getElementById('addNotification');
+            notification.style.display = 'block';
+            
+            // Hide notification after 1.5 seconds
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 1500);
+        }
+
+        // Add new function to show status alert
+        function showStatusAlert() {
+            alert('You can not add this product to the cart');
+        }
+    </script>
+</body>
+</html>

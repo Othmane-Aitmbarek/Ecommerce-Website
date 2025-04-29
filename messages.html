@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages - E-commerce Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            E-SHOP
+        </div>
+        <div class="sidebar-nav">
+            <div class="nav-item" onclick="window.location.href='dashboard.html'">Overview</div>
+            <div class="nav-item active">Messages</div>
+            <div class="nav-item" onclick="window.location.href='products.html'">Products</div>
+            <div class="nav-item" onclick="window.location.href='orders.html'">Orders</div>
+            <div class="nav-item" onclick="window.location.href='customers.html'">Customers</div>
+            <div class="nav-item" onclick="window.location.href='settings.html'">Settings</div>
+        </div>
+        <div class="logout-btn" onclick="logout()">Logout</div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <h1>Messages</h1>
+            <input type="text" class="search-bar" placeholder="Search Messages...">
+        </div>
+
+        <div class="messages-container">
+            <div class="messages-header">
+                <h2>Customer Feedback</h2>
+                <select class="filter-select" onchange="filterFeedback(this.value)">
+                    <option value="all">All Ratings</option>
+                    <option value="5">5 Stars</option>
+                    <option value="4">4 Stars</option>
+                    <option value="3">3 Stars</option>
+                    <option value="2">2 Stars</option>
+                    <option value="1">1 Star</option>
+                </select>
+            </div>
+            <div id="feedbackList">
+                <!-- Feedback will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add click event listeners to messages
+        document.querySelectorAll('.message-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.message-item').forEach(msg => msg.classList.remove('active'));
+                item.classList.add('active');
+            });
+        });
+
+        // Add click event listeners to nav items
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                item.classList.add('active');
+            });
+        });
+        function logout() {
+            // Clear any stored user data if needed
+            localStorage.removeItem('currentUser');
+            // Redirect to signin page
+            window.location.href = 'signin.html';
+        }
+
+        function loadAllFeedback() {
+            const feedback = JSON.parse(localStorage.getItem('feedback') || '[]');
+            const feedbackList = document.getElementById('feedbackList');
+            
+            if (feedback.length === 0) {
+                feedbackList.innerHTML = '<p class="no-feedback">No feedback received yet.</p>';
+                return;
+            }
+
+            // Sort feedback by date (newest first)
+            feedback.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            feedbackList.innerHTML = feedback.map(f => {
+                // Parse the user details
+                let userDetails;
+                try {
+                    userDetails = JSON.parse(f.userId);
+                } catch (e) {
+                    userDetails = { email: f.userId };
+                }
+
+                return `
+                    <div class="feedback-card">
+                        <div class="feedback-header">
+                            <div class="customer-info">
+                                <strong>Customer:</strong><br>
+                                &nbsp;&nbsp;&nbsp;Email: "${userDetails.email}"<br>
+                                ${userDetails.password ? `&nbsp;&nbsp;&nbsp;Password: "${userDetails.password}"` : ''}
+                            </div>
+                            <div class="feedback-date">
+                                ${new Date(f.date).toLocaleDateString()}
+                            </div>
+                        </div>
+                        <div class="product-info">
+                            <strong>Product:</strong> ${f.productName}
+                        </div>
+                        <div class="rating">
+                            ${'★'.repeat(f.rating)}${'☆'.repeat(5-f.rating)}
+                        </div>
+                        <div class="feedback-text">
+                            ${f.feedback}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterFeedback(rating) {
+            const feedback = JSON.parse(localStorage.getItem('feedback') || '[]');
+            const feedbackList = document.getElementById('feedbackList');
+            
+            let filteredFeedback = feedback;
+            if (rating !== 'all') {
+                filteredFeedback = feedback.filter(f => f.rating === parseInt(rating));
+            }
+            
+            if (filteredFeedback.length === 0) {
+                feedbackList.innerHTML = '<p class="no-feedback">No feedback found for this rating.</p>';
+                return;
+            }
+            
+            // Sort feedback by date (newest first)
+            filteredFeedback.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            feedbackList.innerHTML = filteredFeedback.map(f => {
+                // Parse the user details
+                let userDetails;
+                try {
+                    userDetails = JSON.parse(f.userId);
+                } catch (e) {
+                    userDetails = { email: f.userId };
+                }
+
+                return `
+                    <div class="feedback-card">
+                        <div class="feedback-header">
+                            <div class="customer-info">
+                                <strong>Customer:</strong><br>
+                                &nbsp;&nbsp;&nbsp;Email: "${userDetails.email}"<br>
+                                ${userDetails.password ? `&nbsp;&nbsp;&nbsp;Password: "${userDetails.password}"` : ''}
+                            </div>
+                            <div class="feedback-date">
+                                ${new Date(f.date).toLocaleDateString()}
+                            </div>
+                        </div>
+                        <div class="product-info">
+                            <strong>Product:</strong> ${f.productName}
+                        </div>
+                        <div class="rating">
+                            ${'★'.repeat(f.rating)}${'☆'.repeat(5-f.rating)}
+                        </div>
+                        <div class="feedback-text">
+                            ${f.feedback}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        document.addEventListener('DOMContentLoaded', loadAllFeedback);
+    </script>
+
+</body>
+</html>

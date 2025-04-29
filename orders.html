@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .action-dots {
+            cursor: pointer;
+            position: relative;
+            padding: 5px 10px;
+        }
+
+        .action-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            border-radius: 4px;
+            z-index: 1000;
+            min-width: 120px;
+        }
+
+        .action-dots:hover .action-menu {
+            display: block;
+        }
+
+        .action-menu button {
+            display: block;
+            width: 100%;
+            padding: 8px 15px;
+            border: none;
+            background: none;
+            text-align: left;
+            cursor: pointer;
+            color: #333;
+        }
+
+        .action-menu button:hover {
+            background-color: #f5f5f5;
+        }
+
+        .action-menu button.delete {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            E-SHOP
+        </div>
+        <div class="sidebar-nav">
+            <div class="nav-item" onclick="window.location.href='dashboard.html'">Overview</div>
+            <div class="nav-item" onclick="window.location.href='messages.html'">Messages</div>
+            <div class="nav-item" onclick="window.location.href='products.html'">Products</div>
+            <div class="nav-item active">Orders</div>
+            <div class="nav-item" onclick="window.location.href='customers.html'">Customers</div>
+            <div class="nav-item" onclick="window.location.href='settings.html'">Settings</div>
+            <div class="logout-btn" onclick="logout()">Logout</div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <h1>Orders</h1>
+            <input type="text" id="searchInput" class="search-bar" placeholder="Search Orders..." oninput="searchOrders(this.value)">
+        </div>
+
+        <!-- Orders Table -->
+        <div class="orders-container">
+            <div class="table-header" style="display: flex; justify-content: flex-end;">
+                <div class="table-controls">
+                    <select class="control-btn">
+                        <option value="">Sort by</option>
+                        <option value="Date">Sort by: Date</option>
+                        <option value="ID">Sort by: ID</option>
+                    </select>
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Date</th>
+                        <th>Customer Details</th>
+                        <th>Customer ID</th>
+                        <th>Quantity</th>
+                        <th>Status</th>
+                        <th>Products</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="ordersTableBody">
+                    <!-- Orders will be populated here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Add click event listeners to nav items
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                item.classList.add('active');
+            });
+        });
+        function logout() {
+            // Clear any stored user data if needed
+            localStorage.removeItem('currentUser');
+            // Redirect to signin page
+            window.location.href = 'signin.html';
+        }
+
+        function deleteOrder(orderId) {
+            if (confirm('Are you sure you want to delete this order?')) {
+                // Get current orders
+                let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+                
+                // Remove the selected order
+                orders = orders.filter(order => order.orderId !== orderId);
+                
+                // Save updated orders
+                localStorage.setItem('orders', JSON.stringify(orders));
+                
+                // Reload the table
+                loadOrders();
+            }
+        }
+
+        // Add sorting function
+        function sortOrders(criteria) {
+            const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+            
+            switch(criteria) {
+                case 'Date':
+                    orders.sort((a, b) => {
+                        const dateA = new Date(a.date);
+                        const dateB = new Date(b.date);
+                        return dateB - dateA;
+                    });
+                    break;
+                    
+                case 'ID':
+                    orders.sort((a, b) => {
+                        const idA = parseInt(a.orderId.replace('#', ''));
+                        const idB = parseInt(b.orderId.replace('#', ''));
+                        return idA - idB;
+                    });
+                    break;
+            }
+            
+            localStorage.setItem('orders', JSON.stringify(orders));
+            
+            // After sorting, apply any existing search filter
+            const searchTerm = document.getElementById('searchInput').value;
+            if (searchTerm) {
+                searchOrders(searchTerm);
+            } else {
+                loadOrders();
+            }
+        }
+
+        // Modify the select element to include the onchange event
+        document.querySelector('.control-btn').innerHTML = `
+            <option value="">Sort by</option>
+            <option value="Date">Sort by: Date</option>
+            <option value="ID">Sort by: ID</option>
+        `;
+
+        document.querySelector('.control-btn').addEventListener('change', function(e) {
+            if (e.target.value) {
+                sortOrders(e.target.value);
+            }
+        });
+
+        function loadOrders() {
+            const ordersTableBody = document.getElementById('ordersTableBody');
+            const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+            
+            ordersTableBody.innerHTML = orders.map(order => {
+                let customerDetails;
+                try {
+                    customerDetails = JSON.parse(order.customer);
+                } catch (e) {
+                    customerDetails = { email: order.customer, password: '' };
+                }
+
+                const productsDisplay = Array.isArray(order.products) ? 
+                    order.products.map(product => `
+                        name: "${product.name}"
+                        price: $${product.price}
+                    `).join('\n') : order.products;
+
+                return `
+                <tr>
+                    <td>${order.orderId}</td>
+                    <td>${order.date}</td>
+                    <td style="white-space: pre-line;">
+                        email: "${customerDetails.email}"
+                        password: "${customerDetails.password}"
+                    </td>
+                    <td>${order.customerId}</td>
+                    <td>${order.quantity}</td>
+                    <td><span class="status-badge ${order.status.toLowerCase()}">${order.status}</span></td>
+                    <td style="white-space: pre-line;">
+                        ${productsDisplay}
+                    </td>
+                    <td>
+                        <div class="action-dots">
+                            ⋮
+                            <div class="action-menu">
+                                <button class="delete" onclick="deleteOrder('${order.orderId}')">
+                                    Delete Order
+                                </button>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            `}).join('');
+        }
+
+        // Initialize the table when the page loads
+        document.addEventListener('DOMContentLoaded', loadOrders);
+
+        // Add search function
+        function searchOrders(searchTerm) {
+            const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+            const ordersTableBody = document.getElementById('ordersTableBody');
+            
+            // If search is empty, show all orders
+            if (!searchTerm.trim()) {
+                loadOrders();
+                return;
+            }
+            
+            // Filter orders that contain the search term in their products
+            const filteredOrders = orders.filter(order => {
+                const products = Array.isArray(order.products) ? order.products : [];
+                return products.some(product => 
+                    product.name.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+            });
+            
+            // Display filtered orders
+            ordersTableBody.innerHTML = filteredOrders.map(order => {
+                let customerDetails;
+                try {
+                    customerDetails = JSON.parse(order.customer);
+                } catch (e) {
+                    customerDetails = { email: order.customer, password: '' };
+                }
+
+                const productsDisplay = Array.isArray(order.products) ? 
+                    order.products.map(product => {
+                        const productName = product.name;
+                        // Highlight the searched term if it matches
+                        const highlightedName = searchTerm ? 
+                            productName.replace(new RegExp(searchTerm, 'gi'), 
+                                match => `<span style="background-color: yellow">${match}</span>`) 
+                            : productName;
+                        
+                        return `
+                            name: "${highlightedName}"
+                            price: $${product.price}
+                        `;
+                    }).join('\n') : order.products;
+
+                return `
+                <tr>
+                    <td>${order.orderId}</td>
+                    <td>${order.date}</td>
+                    <td style="white-space: pre-line;">
+                        email: "${customerDetails.email}"
+                        password: "${customerDetails.password}"
+                    </td>
+                    <td>${order.customerId}</td>
+                    <td>${order.quantity}</td>
+                    <td><span class="status-badge ${order.status.toLowerCase()}">${order.status}</span></td>
+                    <td style="white-space: pre-line;">
+                        ${productsDisplay}
+                    </td>
+                    <td>
+                        <div class="action-dots">
+                            ⋮
+                            <div class="action-menu">
+                                <button class="delete" onclick="deleteOrder('${order.orderId}')">
+                                    Delete Order
+                                </button>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            `}).join('');
+        }
+    </script>
+</body>
+</html>

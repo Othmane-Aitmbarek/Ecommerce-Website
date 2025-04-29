@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - E-SHOP</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+        }
+
+        .form-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2c3e50;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #34495e;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+
+        .button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .button:active {
+            transform: scale(0.98);
+        }
+
+        .primary-button {
+            background: #1a1a1a;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .primary-button:hover{
+            background-color: #2d2d2d;
+        }
+
+        .secondary-button {
+            background: #ecf0f1;
+            color: #2c3e50;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .success-message {
+            color: #27ae60;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Login Form -->
+        <div class="form-container" id="loginForm">
+            <h2 class="form-title">Sign In</h2>
+            <div class="form-group">
+                <label for="loginEmail">Email</label>
+                <input type="email" id="loginEmail" required>
+                <div class="error-message" id="loginEmailError"></div>
+            </div>
+            <div class="form-group">
+                <label for="loginPassword">Password</label>
+                <input type="password" id="loginPassword" required>
+                <div class="error-message" id="loginPasswordError"></div>
+            </div>
+            <button class="button primary-button" onclick="login()">Sign In</button>
+            <button class="button secondary-button" onclick="toggleForms()">Create Account</button>
+        </div>
+
+        <!-- Registration Form -->
+        <div class="form-container" id="registerForm" style="display: none;">
+            <h2 class="form-title">Create Account</h2>
+            <div class="form-group">
+                <label for="registerEmail">Email</label>
+                <input type="email" id="registerEmail" required>
+                <div class="error-message" id="registerEmailError"></div>
+            </div>
+            <div class="form-group">
+                <label for="registerPassword">Password</label>
+                <input type="password" id="registerPassword" required>
+                <div class="error-message" id="registerPasswordError"></div>
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" required>
+                <div class="error-message" id="confirmPasswordError"></div>
+            </div>
+            <button class="button primary-button" onclick="register()">Create Account</button>
+            <button class="button secondary-button" onclick="toggleForms()">Back to Sign In</button>
+            <div class="success-message" id="registerSuccess">Account created successfully!</div>
+        </div>
+    </div>
+
+    <script>
+        //Loads existing users or creates empty array if none exist
+        let users = JSON.parse(localStorage.getItem('users')) || [];
+
+        function toggleForms() {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            
+            clearForms();
+
+            // Switches between login and registration forms
+            if (loginForm.style.display === 'none') {
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+            } else {
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+            }
+        }
+
+        //Empties the input boxes 
+        function clearForms() {
+            document.getElementById('loginEmail').value = '';
+            document.getElementById('loginPassword').value = '';
+            document.getElementById('registerEmail').value = '';
+            document.getElementById('registerPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+
+            document.querySelectorAll('.error-message').forEach(elem => {
+                elem.style.display = 'none';
+                elem.textContent = '';
+            });
+
+            document.getElementById('registerSuccess').style.display = 'none';
+        }
+
+        function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            // Admin user login
+            if (email === 'admin@e-shop.com' && password === 'admine-shop') {
+                window.location.href = 'dashboard.html';
+                return;
+            }
+            // Regular user login
+            const user = users.find(u => u.email === email && u.password === password);
+            
+            if (user) {
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                window.location.href = 'customer UI/index.html';
+            } else {
+                document.getElementById('loginPasswordError').textContent = 'Invalid email or password';
+                document.getElementById('loginPasswordError').style.display = 'block';
+            }
+        }
+
+        function register() {
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPass = document.getElementById('confirmPassword').value;
+            
+            document.querySelectorAll('.error-message').forEach(elem => {
+                elem.style.display = 'none';
+                elem.textContent = '';
+            });
+
+            // Validates email (must include @)
+            if (!email.includes('@')) {
+                document.getElementById('registerEmailError').textContent = 'Please enter a valid email';
+                document.getElementById('registerEmailError').style.display = 'block';
+                return;
+            }
+
+            // Checks for duplicate emails
+            if (users.some(u => u.email === email)) {
+                document.getElementById('registerEmailError').textContent = 'Email already exists';
+                document.getElementById('registerEmailError').style.display = 'block';
+                return;
+            }
+
+            // Checks password length (minimum 6 characters)
+            if (password.length < 6) {
+                document.getElementById('registerPasswordError').textContent = 'Password must be at least 6 characters';
+                document.getElementById('registerPasswordError').style.display = 'block';
+                return;
+            }
+
+            // Confirms passwords match
+            if (password !== confirmPass) {
+                document.getElementById('confirmPasswordError').textContent = 'Passwords do not match';
+                document.getElementById('confirmPasswordError').style.display = 'block';
+                return;
+            }
+
+            // Creates new user object containing the email and password that the user provided during registration.
+            const newUser = { email, password };
+            users.push(newUser);
+            // Saves the updated users array into the browser's localStorage.
+            localStorage.setItem('users', JSON.stringify(users));
+
+            document.getElementById('registerSuccess').style.display = 'block';
+
+            setTimeout(() => {
+                toggleForms();
+            }, 2000);
+        }
+
+        function signIn(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+
+            const user = users.find(u => u.email === email && u.password === password);
+            
+            if (user) {
+                localStorage.setItem('currentUser', email);
+                window.location.href = 'index.html';
+            } else {
+                alert('Invalid email or password');
+            }
+        }
+    </script>
+</body>
+</html>

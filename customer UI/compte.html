@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account - E-Shop</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link
+      rel="shortcut icon"
+      type="x-icon"
+      href="icon-removebg-preview.png"
+    />
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Spartan:wght@100;200;300;400;500;600;700;800;900&display=swap");
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Spartan", sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            /* background-color: #E0E1DD; */
+            background: linear-gradient(rgba(13, 27, 42), rgba(65, 90, 119));
+        }
+
+        /* Header Styles */
+        .header {
+            background-color: #0D1B2A;
+            color: #E0E1DD;
+            padding: 20px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: #E0E1DD;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: #E0E1DD;
+            text-decoration: none;
+            font-size: 16px;
+            transition: color 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            color: #778DA9;
+        }
+
+        .account-container {
+            max-width: 1200px;
+            margin: 100px auto 20px;
+            padding: 20px;
+        }
+
+        .account-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .logout-btn {
+            background-color: #ff4444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .logout-btn:hover {
+            background-color: #cc0000;
+        }
+
+        .user-info {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .orders-section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .order-card {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .order-products {
+            margin-top: 10px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .pending {
+            background-color: #fff3e0;
+            color: #ef6c00;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        h1 {
+            color: #E0E1DD;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .no-orders {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        @keyframes cartPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+
+        .cart-notification {
+            animation: cartPulse 0.5s ease;
+        }
+
+        .cart-icon {
+            position: relative;
+            text-decoration: none;
+        }
+
+        #cart-counter {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: red;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 12px;
+            min-width: 15px;
+            text-align: center;
+        }
+
+        .feedback-section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .feedback-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        #feedbackForm {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        #productSelect {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        #feedbackText {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            min-height: 100px;
+            font-size: 14px;
+            resize: vertical;
+        }
+
+        .rating {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stars {
+            display: flex;
+            flex-direction: row-reverse;
+            gap: 5px;
+        }
+
+        .stars input {
+            display: none;
+        }
+
+        .stars label {
+            font-size: 25px;
+            color: #ddd;
+            cursor: pointer;
+        }
+
+        .stars input:checked ~ label {
+            color: #ffd700;
+        }
+
+        .stars label:hover,
+        .stars label:hover ~ label {
+            color: #ffd700;
+        }
+
+        .submit-feedback {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .submit-feedback:hover {
+            background-color: #45a049;
+        }
+
+        #previousFeedback {
+            margin-top: 20px;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+        }
+
+        .feedback-item {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .feedback-item .product-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .feedback-item .rating {
+            color: #ffd700;
+            margin-bottom: 5px;
+        }
+
+        .feedback-item .date {
+            color: #666;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                E-SHOP
+            </a>
+            <nav class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="index.html#shop">Shop</a>
+                <a href="index.html#contact">Contact</a>
+                <a href="cart.html" class="cart-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="cart-counter">0</span>
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Account Container -->
+    <div class="account-container">
+        <div class="account-header">
+            <h1>My Account</h1>
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+
+        <!-- User Info -->
+        <div class="user-info">
+            <h2>Account Information</h2>
+            <p id="userEmail"></p>
+        </div>
+
+        <!-- Add this after the user-info div -->
+        <div class="feedback-section">
+            <h2>Product Feedback</h2>
+            <form id="feedbackForm" onsubmit="submitFeedback(event)">
+                <select id="productSelect" required>
+                    <option value="">Select a product you purchased</option>
+                    <!-- Products will be populated dynamically -->
+                </select>
+                <textarea id="feedbackText" placeholder="Share your thoughts about this product..." required></textarea>
+                <div class="rating">
+                    <span>Rating:</span>
+                    <div class="stars">
+                        <input type="radio" id="star5" name="rating" value="5" required>
+                        <label for="star5">★</label>
+                        <input type="radio" id="star4" name="rating" value="4">
+                        <label for="star4">★</label>
+                        <input type="radio" id="star3" name="rating" value="3">
+                        <label for="star3">★</label>
+                        <input type="radio" id="star2" name="rating" value="2">
+                        <label for="star2">★</label>
+                        <input type="radio" id="star1" name="rating" value="1">
+                        <label for="star1">★</label>
+                    </div>
+                </div>
+                <button type="submit" class="submit-feedback">Submit Feedback</button>
+            </form>
+            <div id="previousFeedback">
+                <!-- Previous feedback will be shown here -->
+            </div>
+        </div>
+
+        <!-- Orders Section -->
+        <div class="orders-section">
+            <h2>My Orders</h2>
+            <div id="ordersList">
+                <!-- Orders will be dynamically inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUser = localStorage.getItem('currentUser');
+            if (!currentUser) {
+                window.location.href = '../../Projet JS/signin.html';
+                return;
+            }
+
+            // Parse the JSON string to get email and password
+            try {
+                const userDetails = JSON.parse(currentUser);
+                document.getElementById('userEmail').innerHTML = `
+                    Email: "${userDetails.email}"<br>
+                    Password: "${userDetails.password}"
+                `;
+            } catch (e) {
+                document.getElementById('userEmail').textContent = `Email: ${currentUser}`;
+            }
+
+            // Load and display user's orders
+            loadUserOrders(currentUser);
+
+            // Initialize cart counter
+            updateCartCounter();
+
+            loadPurchasedProducts();
+            loadPreviousFeedback();
+        });
+
+        function loadUserOrders(userEmail) {
+            const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+            const userOrders = orders.filter(order => order.customer === userEmail);
+
+            const ordersList = document.getElementById('ordersList');
+            
+            if (userOrders.length === 0) {
+                ordersList.innerHTML = `
+                    <div class="no-orders">
+                        <i class="fas fa-box-open" style="font-size: 48px; color: #ddd; margin-bottom: 20px;"></i>
+                        <p>You haven't placed any orders yet.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            ordersList.innerHTML = userOrders.map(order => `
+                <div class="order-card">
+                    <div class="order-header">
+                        <div>
+                            <strong>Order ID:</strong> ${order.orderId}<br>
+                            <strong>Date:</strong> ${order.date}
+                        </div>
+                        <span class="status-badge ${order.status.toLowerCase()}">${order.status}</span>
+                    </div>
+                    <div class="order-products">
+                        <strong>Products:</strong><br>
+                        ${formatProducts(order.products)}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function formatProducts(products) {
+            if (!Array.isArray(products)) return 'No products available';
+            
+            return products.map(product => `
+                ${product.name} - $${product.price}
+            `).join('<br>');
+        }
+
+        function updateCartCounter() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const counter = document.getElementById('cart-counter');
+            counter.textContent = cart.length;
+            counter.style.display = cart.length > 0 ? 'block' : 'none';
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = '../../Projet JS/signin.html';
+        }
+
+        function loadPurchasedProducts() {
+            const currentUser = localStorage.getItem('currentUser');
+            const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+            const productSelect = document.getElementById('productSelect');
+            
+            // Clear existing options except the default one
+            productSelect.innerHTML = '<option value="">Select a product you purchased</option>';
+            
+            // Get user's orders
+            const userOrders = orders.filter(order => {
+                try {
+                    // Check if the customer is stored as an object
+                    const customerDetails = JSON.parse(order.customer);
+                    return customerDetails.email === JSON.parse(currentUser).email;
+                } catch (e) {
+                    // If parsing fails, compare directly
+                    return order.customer === currentUser;
+                }
+            });
+
+            console.log('User Orders:', userOrders); // Debug log
+
+            // Get unique purchased products
+            const purchasedProducts = new Set();
+            userOrders.forEach(order => {
+                if (Array.isArray(order.products)) {
+                    order.products.forEach(product => {
+                        purchasedProducts.add(JSON.stringify(product));
+                    });
+                }
+            });
+
+            console.log('Purchased Products:', purchasedProducts); // Debug log
+
+            // Add products to select dropdown
+            Array.from(purchasedProducts).forEach(productString => {
+                const product = JSON.parse(productString);
+                const option = document.createElement('option');
+                option.value = product.id;
+                option.textContent = product.name;
+                productSelect.appendChild(option);
+            });
+
+            // Show message if no products purchased
+            if (purchasedProducts.size === 0) {
+                productSelect.innerHTML = '<option value="">No products purchased yet</option>';
+                productSelect.disabled = true;
+                document.querySelector('.submit-feedback').disabled = true;
+            }
+        }
+
+        function submitFeedback(event) {
+            event.preventDefault();
+            
+            const currentUser = localStorage.getItem('currentUser');
+            const productSelect = document.getElementById('productSelect');
+            
+            if (!productSelect.value) {
+                alert('Please select a product');
+                return;
+            }
+            
+            const productName = productSelect.options[productSelect.selectedIndex].text;
+            const feedbackText = document.getElementById('feedbackText').value;
+            const rating = document.querySelector('input[name="rating"]:checked')?.value;
+
+            if (!rating) {
+                alert('Please select a rating');
+                return;
+            }
+            
+            // Get existing feedback
+            const feedback = JSON.parse(localStorage.getItem('feedback') || '[]');
+            
+            // Check if user already gave feedback for this product
+            const existingFeedback = feedback.find(f => 
+                f.userId === currentUser && f.productId === productSelect.value
+            );
+
+            if (existingFeedback) {
+                if (!confirm('You have already submitted feedback for this product. Would you like to update it?')) {
+                    return;
+                }
+                // Remove existing feedback
+                const index = feedback.indexOf(existingFeedback);
+                feedback.splice(index, 1);
+            }
+            
+            // Add new feedback
+            feedback.push({
+                userId: currentUser,
+                productId: productSelect.value,
+                productName: productName,
+                feedback: feedbackText,
+                rating: parseInt(rating),
+                date: new Date().toISOString()
+            });
+            
+            // Save feedback
+            localStorage.setItem('feedback', JSON.stringify(feedback));
+            
+            // Reset form
+            event.target.reset();
+            
+            // Show success message
+            alert('Thank you for your feedback!');
+            
+            // Refresh feedback display
+            loadPreviousFeedback();
+        }
+
+        function loadPreviousFeedback() {
+            const currentUser = localStorage.getItem('currentUser');
+            const feedback = JSON.parse(localStorage.getItem('feedback') || '[]');
+            const previousFeedback = document.getElementById('previousFeedback');
+            
+            // Filter feedback for current user
+            const userFeedback = feedback.filter(f => f.userId === currentUser);
+            
+            if (userFeedback.length === 0) {
+                previousFeedback.innerHTML = '<p>You haven\'t submitted any feedback yet.</p>';
+                return;
+            }
+            
+            // Sort feedback by date (newest first)
+            userFeedback.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            // Display feedback
+            previousFeedback.innerHTML = '<h3>Your Previous Feedback</h3>' + 
+                userFeedback.map(f => `
+                    <div class="feedback-item">
+                        <div class="product-name">${f.productName}</div>
+                        <div class="rating">${'★'.repeat(f.rating)}${'☆'.repeat(5-f.rating)}</div>
+                        <div class="feedback-text">${f.feedback}</div>
+                        <div class="date">Submitted on ${new Date(f.date).toLocaleDateString()}</div>
+                    </div>
+                `).join('');
+        }
+    </script>
+</body>
+</html>

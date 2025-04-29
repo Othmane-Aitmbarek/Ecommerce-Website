@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customers Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            E-SHOP
+        </div>
+        <div class="sidebar-nav">
+            <div class="nav-item" onclick="window.location.href='dashboard.html'">Overview</div>
+            <div class="nav-item" onclick="window.location.href='messages.html'">Messages</div>
+            <div class="nav-item" onclick="window.location.href='products.html'">Products</div>
+            <div class="nav-item" onclick="window.location.href='orders.html'">Orders</div>
+            <div class="nav-item active">Customers</div>
+            <div class="nav-item" onclick="window.location.href='settings.html'">Settings</div>
+            <div class="logout-btn" onclick="logout()">Logout</div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <h1>Customers</h1>
+            <input type="text" id="searchInput" class="search-bar" placeholder="Search Customers..." oninput="searchCustomers(this.value)">
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span>New Customers</span>
+                </div>
+                <div class="stat-value">847</div>
+                <div class="stat-change">+12.5% this month</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span>Repeat Purchase Rate</span>
+                </div>
+                <div class="stat-value">68.2%</div>
+                <div class="stat-change">+5.3% this month</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span>Average Order Value</span>
+                </div>
+                <div class="stat-value">$123.45</div>
+                <div class="stat-change">+8.7% this month</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span>Conversion Rate</span>
+                </div>
+                <div class="stat-value">3.2%</div>
+                <div class="stat-change">+0.5% this month</div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3>Customer Satisfaction Rate</h3>
+                    <select class="control-btn">
+                        <option>Last 30 Days</option>
+                    </select>
+                </div>
+                <canvas id="satisfactionChart" style="width: 300px; height: 300px; margin-top: -40px;"></canvas>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3>E-commerce Revenue</h3>
+                    <select class="control-btn">
+                        <option>Last 30 Days</option>
+                    </select>
+                </div>
+                <canvas id="revenueChart"></canvas>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3>Conversion Rate Over Time</h3>
+                    <select class="control-btn">
+                        <option>Last 30 Days</option>
+                    </select>
+                </div>
+                <canvas id="conversionChart"></canvas>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3>Customer Growth</h3>
+                    <select class="control-btn">
+                        <option>Last 30 Days</option>
+                    </select>
+                </div>
+                <canvas id="growthChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Customers Table -->
+        <div class="customers-table">
+            <div class="table-header">
+                <h3>All Customers</h3>
+                <div class="table-controls">
+                    <select class="control-btn" id="sortSelect" onchange="sortTable(this.value)">
+                        <option value="">Sort by...</option>
+                        <option value="date">Sort by: Date</option>
+                        <option value="spent">Sort by: Total Spent</option>
+                    </select>
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Customer ID</th>
+                        <th>Email</th>
+                        <th>Joined Date</th>
+                        <th>Total Orders</th>
+                        <th>Total Spent</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Customer data will be inserted here dynamically -->
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+    <script>
+        // Helper function to generate random data
+function generateRandomData(count) {
+    return Array.from({length: count}, () => Math.floor(Math.random() * 100));
+}
+
+// Pie Chart - Customer Satisfaction
+const satisfactionChart = new Chart(
+    document.getElementById('satisfactionChart').getContext('2d'),
+    {
+        type: 'pie',
+        data: {
+            labels: ['Very Satisfied', 'Satisfied', 'Neutral', 'Dissatisfied', 'Very Dissatisfied'],
+            datasets: [{
+                data: [45, 25, 15, 10, 5],
+                backgroundColor: [
+                    '#4CAF50',
+                    '#8BC34A',
+                    '#FFC107',
+                    '#FF9800',
+                    '#F44336'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    align: 'center',
+                    labels: {
+                        boxWidth: 15,
+                        padding: 15,
+                        font: {
+                            size: 12
+                        }
+                    }
+                }
+            }
+        }
+    }
+);
+
+// Bar Chart - E-commerce Revenue
+const revenueChart = new Chart(
+    document.getElementById('revenueChart').getContext('2d'),
+    {
+        type: 'bar',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+                label: 'Monthly Revenue',
+                data: generateRandomData(6),
+                backgroundColor: '#4CAF50',
+                borderColor: '#4CAF50',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Revenue ($)'
+                    }
+                }
+            }
+        }
+    }
+);
+
+// Line Chart - Conversion Rate
+const conversionChart = new Chart(
+    document.getElementById('conversionChart').getContext('2d'),
+    {
+        type: 'line',
+        data: {
+            labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+            datasets: [{
+                label: 'Conversion Rate',
+                data: [2.1, 2.5, 3.2, 3.5],
+                borderColor: '#2196F3',
+                tension: 0.4,
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Conversion Rate (%)'
+                    }
+                }
+            }
+        }
+    }
+);
+
+// Histogram - Customer Growth Distribution
+const growthChart = new Chart(
+    document.getElementById('growthChart').getContext('2d'),
+    {
+        type: 'bar',
+        data: {
+            labels: ['0-20', '21-40', '41-60', '61-80', '81-100', '100+'],
+            datasets: [{
+                label: 'Customer Distribution',
+                data: generateRandomData(6),
+                backgroundColor: '#FF9800',
+                borderColor: '#FF9800',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Customers'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Growth Range (%)'
+                    }
+                }
+            }
+        }
+    }
+);
+function logout() {
+            // Clear any stored user data if needed
+            localStorage.removeItem('currentUser');
+            // Redirect to signin page
+            window.location.href = 'signin.html';
+        }
+
+// Add this function to load customer data
+function loadCustomerData() {
+    const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+    const customersMap = new Map();
+
+    // Process all orders to gather customer data
+    orders.forEach(order => {
+        let customerEmail;
+        try {
+            const customerDetails = JSON.parse(order.customer);
+            customerEmail = customerDetails.email;
+        } catch (e) {
+            customerEmail = order.customer;
+        }
+
+        if (!customersMap.has(customerEmail)) {
+            customersMap.set(customerEmail, {
+                id: order.customerId,
+                email: customerEmail,
+                joinedDate: order.date,
+                totalOrders: 1,
+                totalSpent: calculateOrderTotal(order.products)
+            });
+        } else {
+            const customer = customersMap.get(customerEmail);
+            customer.totalOrders++;
+            customer.totalSpent += calculateOrderTotal(order.products);
+        }
+    });
+
+    // Convert Map to Array and update the table
+    const customersArray = Array.from(customersMap.values());
+    updateCustomersTable(customersArray);
+}
+
+// Function to calculate order total
+function calculateOrderTotal(products) {
+    if (!Array.isArray(products)) return 0;
+    return products.reduce((total, product) => total + parseFloat(product.price), 0);
+}
+
+// Function to update the customers table
+function updateCustomersTable(customers) {
+    const tbody = document.querySelector('.customers-table tbody');
+    tbody.innerHTML = customers.map(customer => `
+        <tr>
+            <td>${customer.id}</td>
+            <td>${customer.email}</td>
+            <td>${customer.joinedDate}</td>
+            <td>${customer.totalOrders}</td>
+            <td>$${customer.totalSpent.toFixed(2)}</td>
+            <td>
+                <div class="action-dots">
+                    ⋮
+                    <div class="action-menu">
+                        <button class="delete" onclick="deleteCustomer('${customer.email}')">
+                            Delete Customer
+                        </button>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// Add delete customer function
+function deleteCustomer(customerEmail) {
+    if (confirm('Are you sure you want to delete this customer and all their orders?')) {
+        // Get all orders
+        const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+        
+        // Filter out orders from this customer
+        const updatedOrders = orders.filter(order => {
+            try {
+                const customerDetails = JSON.parse(order.customer);
+                return customerDetails.email !== customerEmail;
+            } catch (e) {
+                return order.customer !== customerEmail;
+            }
+        });
+        
+        // Save updated orders
+        localStorage.setItem('orders', JSON.stringify(updatedOrders));
+        
+        // Refresh the table
+        loadCustomerData();
+    }
+}
+
+// Call loadCustomerData when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    loadCustomerData();
+});
+
+// Add sort function
+function sortTable(criteria) {
+    const tbody = document.querySelector('.customers-table tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    
+    rows.sort((a, b) => {
+        switch(criteria) {
+            case 'date':
+                const dateA = new Date(a.cells[2].textContent);
+                const dateB = new Date(b.cells[2].textContent);
+                return dateB - dateA; // Most recent first
+                
+            case 'spent':
+                const spentA = parseFloat(a.cells[4].textContent.replace('$', ''));
+                const spentB = parseFloat(b.cells[4].textContent.replace('$', ''));
+                return spentB - spentA; // Highest amount first
+                
+            default:
+                return 0;
+        }
+    });
+    
+    // Clear the table
+    while (tbody.firstChild) {
+        tbody.removeChild(tbody.firstChild);
+    }
+    
+    // Add sorted rows back
+    rows.forEach(row => tbody.appendChild(row));
+}
+
+// Add search function
+function searchCustomers(searchTerm) {
+    const tbody = document.querySelector('.customers-table tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    
+    rows.forEach(row => {
+        const email = row.cells[1].textContent.toLowerCase();
+        const searchValue = searchTerm.toLowerCase();
+        
+        if (email.includes(searchValue)) {
+            row.style.display = '';
+            // Highlight the matching text
+            row.cells[1].innerHTML = email.replace(
+                new RegExp(searchValue, 'gi'),
+                match => `<span style="background-color: yellow">${match}</span>`
+            );
+        } else {
+            row.style.display = 'none';
+        }
+    });
+    
+    // Show "No results found" if all rows are hidden
+    const visibleRows = rows.filter(row => row.style.display !== 'none');
+    if (visibleRows.length === 0 && searchTerm) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6" style="text-align: center; padding: 20px;">
+                    No customers found matching "${searchTerm}"
+                </td>
+            </tr>
+        `;
+    }
+    
+    // Reset table if search is cleared
+    if (!searchTerm) {
+        loadCustomerData();
+    }
+}
+    </script>
+
+    <style>
+    /* Add these styles if not already present */
+    .action-dots {
+        cursor: pointer;
+        position: relative;
+        font-size: 20px;
+        padding: 5px;
+    }
+
+    .action-menu {
+        display: none;
+        position: absolute;
+        right: 0;
+        background: white;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        border-radius: 4px;
+        z-index: 1000;
+    }
+
+    .action-dots:hover .action-menu {
+        display: block;
+    }
+
+    .action-menu button {
+        display: block;
+        width: 100%;
+        padding: 8px 15px;
+        border: none;
+        background: none;
+        text-align: left;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    .action-menu button.delete {
+        color: black;
+    }
+
+    .action-menu button:hover {
+        background-color: #f5f5f5;
+    }
+    </style>
+</body>
+</html>

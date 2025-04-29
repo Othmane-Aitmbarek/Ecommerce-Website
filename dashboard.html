@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-commerce Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            E-SHOP
+        </div>
+        <div class="sidebar-nav">
+            <div class="nav-item active">
+                Overview
+            </div>
+            <div class="nav-item" onclick="window.location.href='messages.html'">
+                Messages
+            </div>
+            <div class="nav-item" onclick="window.location.href='products.html'">
+                Products
+            </div>
+            <div class="nav-item" onclick="window.location.href='orders.html'">
+                Orders
+            </div>
+            <div class="nav-item" onclick="window.location.href='customers.html'">
+                Customers
+            </div>
+            <div class="nav-item" onclick="window.location.href='settings.html'">
+                Settings
+            </div>
+        </div>
+        <div class="logout-btn" onclick="logout()">
+            Logout
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>Dashboard Overview</h1>
+            <div class="header-actions">
+                <input type="text" class="search-bar" placeholder="Search">
+            </div>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-card dark">
+                <div class="stat-header">
+                    <span>Total Revenue</span>
+                </div>
+                <div class="stat-value"></div>
+                <div class="stat-change">+15.3% from last month</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span>Total Orders</span>
+                </div>
+                <div class="stat-value"></div>
+                <div class="stat-change">+8.4% from last month</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span>Active Products</span>
+                </div>
+                <div class="stat-value" id="productCount">0</div>
+                <div class="stat-change">+5.2% from last month</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span>Total Customers</span>
+                </div>
+                <div class="stat-value">892</div>
+                <div class="stat-change">+12.1% from last month</div>
+            </div>
+        </div>
+
+        <div class="charts-section">
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3>Revenue Overview</h3>
+                    <div class="chart-filters">
+                        <select class="control-btn">
+                            <option value="7days">Last 7 Days</option>
+                            <option value="30days">Last 30 Days</option>
+                            <option value="90days">Last 90 Days</option>
+                        </select>
+                    </div>
+                </div>
+                <canvas id="salesChart"></canvas>
+            </div>
+
+            <div class="categories-container">
+                <div class="chart-header" style="margin-bottom: 10px;">
+                    <h3>Top Categories</h3>
+                    <div class="chart-filters">
+                        <select class="control-btn">
+                            <option value="By Revenue">By Revenue</option>
+                            <option value="By Orders">By Orders</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="categoriesList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeDashboard();
+        });
+
+        function initializeDashboard() {
+            updateCategoriesList();
+            if (typeof Chart !== 'undefined') {
+                initializeChart('7days'); // Default to 7 days view
+            } else {
+                console.error('Chart.js is not loaded properly');
+            }
+        }
+
+        function initializeChart(period) {
+            const canvas = document.getElementById('salesChart');
+            if (!canvas) {
+                console.error('Canvas element not found');
+                return;
+            }
+
+            const ctx = canvas.getContext('2d');
+            let labels, data;
+
+            switch(period) {
+                case '7days':
+                    labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                    data = [3200, 4100, 3800, 4500, 4200, 4800, 5200];
+                    break;
+                case '30days':
+                    labels = Array.from({length: 30}, (_, i) => `Day ${i + 1}`);
+                    data = Array.from({length: 30}, () => Math.floor(Math.random() * 3000) + 2000);
+                    break;
+                case '90days':
+                    labels = Array.from({length: 90}, (_, i) => `Day ${i + 1}`);
+                    data = Array.from({length: 90}, () => Math.floor(Math.random() * 4000) + 2000);
+                    break;
+            }
+
+            if (window.salesChart instanceof Chart) {
+                window.salesChart.destroy();
+            }
+
+            try {
+                window.salesChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Revenue',
+                            data: data,
+                            borderColor: '#1a1a1a',
+                            tension: 0.4,
+                            fill: false
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: value => '$' + value
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error creating chart:', error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const chartFilter = document.querySelector('.chart-filters select');
+            if (chartFilter) {
+                chartFilter.addEventListener('change', function(e) {
+                    const period = e.target.value.toLowerCase().replace(' ', '');
+                    initializeChart(period);
+                });
+            }
+        });
+
+        function updateCategoriesList() {
+            const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+            const categories = new Map(); 
+            orders.forEach(order => {
+                const products = Array.isArray(order.products) ? order.products : [];
+                products.forEach(product => {
+                    if (!categories.has(product.category)) {
+                        categories.set(product.category, {
+                            name: product.category,
+                            revenue: 0,
+                            orders: 0
+                        });
+                    }  
+                    const categoryStats = categories.get(product.category);
+                    categoryStats.revenue += parseFloat(product.price);
+                    categoryStats.orders += 1;
+                });
+            });
+            const categoriesArray = Array.from(categories.values());
+            const sortBy = document.querySelector('.categories-container select').value;
+            categoriesArray.sort((a, b) => {
+                if (sortBy === 'By Revenue') {
+                    return b.revenue - a.revenue;
+                } else if (sortBy === 'By Orders') {
+                    return b.orders - a.orders;
+                }
+                return 0;
+            });
+
+            const categoriesList = document.getElementById('categoriesList');
+            categoriesList.innerHTML = categoriesArray.map(category => `
+                <div class="category-item">
+                    <div class="category-info">
+                        <span class="category-name">${category.name}</span>
+                        <div class="category-stats">
+                            <span class="revenue">$${category.revenue.toFixed(2)}</span>
+                            <span class="orders">${category.orders} orders</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const categoriesFilter = document.querySelector('.categories-container select');
+            if (categoriesFilter) {
+                categoriesFilter.addEventListener('change', updateCategoriesList);
+            }
+            updateCategoriesList();
+        });
+
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                item.classList.add('active');
+            });
+        });
+
+        // Add this to your dashboard's DOMContentLoaded event listener
+        document.addEventListener('DOMContentLoaded', function() {
+            // Update product count
+            const productCount = localStorage.getItem('productCount') || '0';
+            document.getElementById('productCount').textContent = productCount;
+        });
+
+        // Add this function to calculate dashboard statistics
+        function updateDashboardStats() {
+            const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+            
+            // Calculate total revenue
+            const totalRevenue = orders.reduce((total, order) => {
+                const products = Array.isArray(order.products) ? order.products : [];
+                return total + products.reduce((sum, product) => sum + parseFloat(product.price), 0);
+            }, 0);
+
+            // Calculate total orders (total products bought)
+            const totalProducts = orders.reduce((total, order) => {
+                const products = Array.isArray(order.products) ? order.products : [];
+                return total + products.length;
+            }, 0);
+
+            // Calculate unique customers
+            const uniqueCustomers = new Set(orders.map(order => {
+                try {
+                    const customerDetails = JSON.parse(order.customer);
+                    return customerDetails.email;
+                } catch (e) {
+                    return order.customer;
+                }
+            })).size;
+
+            // Update the stats in the HTML
+            document.querySelector('.stat-card.dark .stat-value').textContent = 
+                `$${totalRevenue.toFixed(2)}`;
+            
+            document.querySelector('.stat-card:nth-child(2) .stat-value').textContent = 
+                totalProducts.toString();
+            
+            document.querySelector('.stat-card:nth-child(4) .stat-value').textContent = 
+                uniqueCustomers.toString();
+        }
+
+        // Call the function when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDashboardStats();
+        });
+
+        // Logout Function
+        function logout() {
+            // Clear any stored user data if needed
+            localStorage.removeItem('currentUser');
+            // Redirect to signin page
+            window.location.href = 'signin.html';
+        }
+    </script>
+</body>
+</html>
